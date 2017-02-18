@@ -24,21 +24,21 @@ namespace NSZip {
             ZipArchiveMode zam = ZipArchiveMode.Create;
             FileStream fs;
 
-            if ((nargs = args.Length) > 0) {
-                for (int i = 0; i < nargs; i++) {
-                    anArg = args[i];
-                    if ((len = anArg.Length) >= 2) {
-                        if (anArg[0] == '-' || anArg[0] == '/') {
+            if ((nargs=args.Length)>0) {
+                for (int i = 0 ; i<nargs ; i++) {
+                    anArg=args[i];
+                    if ((len=anArg.Length)>=2) {
+                        if (anArg[0]=='-'||anArg[0]=='/') {
                             switch (anArg[1]) {
                                 case 'o':
-                                    if (len > 2)
-                                        zipName = anArg.Substring(2).Trim();
-                                    else { zipName = args[i + 1]; i++; }
-                                    if (string.Compare(Path.GetExtension(zipName), ".zip", true) != 0)
-                                        zipName = zipName + ".zip";
-                                    break;
-                                case 'h': showHelp = true; break;
-                                case '?': showHelp = true; break;
+                                if (len>2)
+                                    zipName=anArg.Substring(2).Trim();
+                                else { zipName=args[i+1]; i++; }
+                                if (string.Compare(Path.GetExtension(zipName), ".zip", true)!=0)
+                                    zipName=zipName+".zip";
+                                break;
+                                case 'h': showHelp=true; break;
+                                case '?': showHelp=true; break;
                             }
                         } else {
                             argsToProcess.Add(anArg);
@@ -52,16 +52,16 @@ namespace NSZip {
                     if (string.IsNullOrEmpty(zipName)) {
                         Console.Error.WriteLine("zip-name not specifified.");
                         showUserHelp(Console.Error, Assembly.GetEntryAssembly());
-                        exitcode = 2;
-                    } else if (argsToProcess.Count < 1) {
+                        exitcode=2;
+                    } else if (argsToProcess.Count<1) {
                         Console.Error.WriteLine("no files/directories to zip.");
                         showUserHelp(Console.Error, Assembly.GetEntryAssembly());
-                        exitcode = 2;
+                        exitcode=2;
                     } else {
-                        zam = populateZipfile(zipName, argsToProcess, out za, zam, out fs);
+                        zam=populateZipfile(zipName, argsToProcess, out za, zam, out fs);
                     }
                 }
-                if (za != null)
+                if (za!=null)
                     za.Dispose();
             } else {
                 Console.Out.WriteLine("no arguments entered.");
@@ -70,11 +70,11 @@ namespace NSZip {
             Environment.Exit(exitcode);
         }
 
-        private static ZipArchiveMode populateZipfile(string zipName, List<string> argsToProcess, out ZipArchive za, ZipArchiveMode zam, out FileStream fs) {
+        static ZipArchiveMode populateZipfile(string zipName, List<string> argsToProcess, out ZipArchive za, ZipArchiveMode zam, out FileStream fs) {
             if (File.Exists(zipName))
-                zam = ZipArchiveMode.Update;
-            fs = new FileStream(zipName, FileMode.OpenOrCreate);
-            za = new ZipArchive(fs, zam);
+                zam=ZipArchiveMode.Update;
+            fs=new FileStream(zipName, FileMode.OpenOrCreate);
+            za=new ZipArchive(fs, zam);
             foreach (string anArgs in argsToProcess) {
                 if (File.Exists(anArgs)) {
                     replaceEntryIfExists(za, anArgs);
@@ -90,8 +90,8 @@ namespace NSZip {
             List<string> files = new List<string>();
             string[] kids;
 
-            kids = findChildrenOf(dirName);
-            if (kids.Length > 0)
+            kids=findChildrenOf(dirName);
+            if (kids.Length>0)
                 files.AddRange(kids);
             foreach (string aKid in kids)
                 replaceEntryIfExists(za, aKid);
@@ -100,8 +100,8 @@ namespace NSZip {
         static void replaceEntryIfExists(ZipArchive za, string aKid) {
             ZipArchiveEntry z;
 
-            if (za.Mode != ZipArchiveMode.Create)
-                if ((z = za.GetEntry(aKid)) != null)
+            if (za.Mode!=ZipArchiveMode.Create)
+                if ((z=za.GetEntry(aKid))!=null)
                     z.Delete();
             za.CreateEntryFromFile(aKid, aKid, CompressionLevel.Optimal);
         }
@@ -110,13 +110,13 @@ namespace NSZip {
             List<string> ret = new List<string>();
             string[] tmp, kids;
 
-            tmp = Directory.GetDirectories(dirName);
+            tmp=Directory.GetDirectories(dirName);
             foreach (string aDir in tmp) {
-                kids = findChildrenOf(aDir);
-                if (kids.Length > 0)
+                kids=findChildrenOf(aDir);
+                if (kids.Length>0)
                     ret.AddRange(kids);
             }
-            if ((tmp = Directory.GetFiles(dirName)).Length > 0)
+            if ((tmp=Directory.GetFiles(dirName)).Length>0)
                 ret.AddRange(tmp);
             return ret.ToArray();
         }
@@ -128,7 +128,7 @@ namespace NSZip {
             // -isDebug phibro-style
             // -s simple
 
-            tw.WriteLine("\t" + Path.GetFileNameWithoutExtension(a.Location) +
+            tw.WriteLine("\t"+Path.GetFileNameWithoutExtension(a.Location)+
                 ": -o out_zipfile file_or_directory [...file_or_directory]");
         }
     }
