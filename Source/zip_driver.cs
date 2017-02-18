@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
@@ -9,8 +8,15 @@ using System.Reflection;
 
 // DIR=C:\Users\RTCOUSENS\colt\projects\Laser\sql
 // zip -o CT_2016 colt_tracking.2016.bcp ColtTrackingForMobius.sql
+
 namespace NSZip {
+    /// <summary>blah</summary>
     class Program {
+        /// <summary>main-line porgram.</summary>
+        /// <param name="args">an <see cref="Array"/> of <see cref="string"/>s.</param>
+        /// <seealso cref="showUserHelp"/>
+        /// <seealso cref="parseArguments"/>
+        /// <seealso cref="populateZipfile"/>
         static void Main(string[] args) {
             List<string> argsToProcess;
             int nargs, exitcode = 0;
@@ -42,6 +48,11 @@ namespace NSZip {
             Environment.Exit(exitcode);
         }
 
+        /// <summary>parse the command-line parameters.</summary>
+        /// <param name="args"></param>
+        /// <param name="zipName"></param>
+        /// <param name="showHelp"></param>
+        /// <returns></returns>
         static List<string> parseArguments(string[] args, out string zipName, out bool showHelp) {
             List<string> argsToProcess;
             int nargs = args.Length, len;
@@ -73,10 +84,18 @@ namespace NSZip {
             return argsToProcess;
         }
 
-        static ZipArchiveMode populateZipfile(string zipName, List<string> argsToProcess ) {
+        /// <summary>Add files to the zip-file.</summary>
+        /// <param name="zipName">a <see cref="string"/> containing the name of the zip-file to create/process.</param>
+        /// <param name="argsToProcess">a  <see cref="List{String}"/></param>
+        /// <seealso cref="replaceEntryIfExists"/>
+        /// <seealso cref="addDirectoryContentsTo"/>
+        static void populateZipfile(string zipName, List<string> argsToProcess) {
             FileStream fs;
             ZipArchiveMode zam = ZipArchiveMode.Create;
             ZipArchive za;
+            string[] blah;
+            string str;
+            int pos;
 
             if (File.Exists(zipName))
                 zam = ZipArchiveMode.Update;
@@ -87,13 +106,32 @@ namespace NSZip {
                     replaceEntryIfExists(za, anArgs);
                 } else if (Directory.Exists(anArgs)) {
                     addDirectoryContentsTo(za, anArgs);
+                } else {
+                    if ((pos = anArgs.LastIndexOf('*')) > 0) {
+                        str = anArgs.Substring(0, pos - 1);
+                        blah = Directory.GetFiles(str, anArgs.Substring(pos));
+                        if (blah.Length > 0)
+                            foreach (string aFile in blah)
+                                replaceEntryIfExists(za, aFile);
+                    } else {
+                        str = Directory.GetCurrentDirectory();
+                        blah = Directory.GetFiles(str, anArgs);
+                        if (blah.Length > 0)
+                            foreach (string aFile in blah)
+                                replaceEntryIfExists(za, aFile.Substring(str.Length + 1));
+                    }
                 }
             }
             za.Dispose();
             za = null;
-            return zam;
         }
 
+        /// <summary>find all files in the given directory.</summary>
+        /// <param name="za">a <see cref="ZipArchive"/> which will contain the results.</param>
+        /// <param name="dirName">a <see cref="string"/> containing the directory to be scanned.</param>
+        /// <remarks><para>Find child entries of this directory, and add them to the zip-file.</para></remarks>
+        /// <seealso cref="findChildrenOf"/> 
+        /// <seealso cref="replaceEntryIfExists"/> 
         static void addDirectoryContentsTo(ZipArchive za, string dirName) {
             List<string> files = new List<string>();
             string[] kids;
@@ -105,6 +143,15 @@ namespace NSZip {
                 replaceEntryIfExists(za, aKid);
         }
 
+        /// <summary>Replace the given element, if it exists.</summary>
+        /// <param name="za">a <see cref="ZipArchive"/> instance whiich will contain the new child-element.</param>
+        /// <param name="aKid">a <see cref="string"/> containing the name of the file to add to the archive.</param>
+        /// <seealso cref="ZipArchiveEntry"/>
+        /// <seealso cref="ZipArchiveEntry.Delete"/>
+        /// <seealso cref="ZipArchive.GetEntry"/>
+        /// <remarks>
+        /// <para>Add a <see cref="ZipArchiveEntry"/> after conditionally removing the previous instance.</para>
+        /// </remarks>
         static void replaceEntryIfExists(ZipArchive za, string aKid) {
             ZipArchiveEntry z;
 
@@ -114,6 +161,11 @@ namespace NSZip {
             za.CreateEntryFromFile(aKid, aKid, CompressionLevel.Optimal);
         }
 
+        /// <summary>Gather files in the directory.</summary>
+        /// <param name="dirName"></param>
+        /// <returns>an <see cref="Array"/> of <see cref="string"/>s containing all child-objects of a given directory.</returns>
+        /// <seealso cref="Directory.GetDirectories(string)"/>
+        /// <seealso cref="Directory.GetFiles(string)"/>
         static string[] findChildrenOf(string dirName) {
             List<string> ret = new List<string>();
             string[] tmp, kids;
@@ -129,6 +181,10 @@ namespace NSZip {
             return ret.ToArray();
         }
 
+        /// <summary>Show help messages.</summary>
+        /// <param name="tw">a <see cref="TextWriter"/> to which to write the information.</param>
+        /// <param name="a">a <see cref="Assembly"/> containing the information about ....blah...</param>
+        /// <seealso cref="Path.GetFileNameWithoutExtension(string)"/> 
         static void showUserHelp(TextWriter tw, Assembly a) {
             tw.WriteLine("usage:");
             // -D devexpress
