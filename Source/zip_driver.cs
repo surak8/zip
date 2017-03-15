@@ -122,6 +122,7 @@ namespace NSZip {
                     }
                 }
             }
+//            za.fl
             za.Dispose();
             za = null;
         }
@@ -153,12 +154,19 @@ namespace NSZip {
         /// <para>Add a <see cref="ZipArchiveEntry"/> after conditionally removing the previous instance.</para>
         /// </remarks>
         static void replaceEntryIfExists(ZipArchive za, string aKid) {
-            ZipArchiveEntry z;
+            ZipArchiveEntry z, znew;
+            //            zipar
+            bool bupdated = false;
 
             if (za.Mode != ZipArchiveMode.Create)
-                if ((z = za.GetEntry(aKid)) != null)
+                if ((z = za.GetEntry(aKid)) != null) {
                     z.Delete();
-            za.CreateEntryFromFile(aKid, aKid, CompressionLevel.Optimal);
+                    Console.WriteLine("updated: " + aKid);
+                    bupdated = true;
+                }
+            znew = za.CreateEntryFromFile(aKid, aKid, CompressionLevel.Optimal);
+            //            if (!wroteMessage)
+            Console.WriteLine((bupdated ? "updated" : "added") + ":" + aKid);
         }
 
         /// <summary>Gather files in the directory.</summary>
